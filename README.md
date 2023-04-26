@@ -42,7 +42,7 @@ function obfuscate_link($url, $text, $current_url, $allowed_categories = []) {
   }
 }
 ```
-## Filtre à insérer en dessous de la fonction obsfucate pour appliquer cette règle au menu Wordpress :
+## Filtre à insérer en dessous de la fonction obsfucate
 
 ```
 function filter_wp_nav_menu_objects($sorted_menu_items) {
