@@ -106,6 +106,9 @@ Logique corrigée à partir du schema envoyé + intégration des exceptions
 
 ```
 function obfuscate_link_custom($url, $text, $current_url) {
+    $always_obfuscate = array('slug1', 'slug2'); // Liste des slugs à toujours obfusquer
+    $never_obfuscate = array('slug3', 'slug4'); // Liste des slugs à ne jamais obfusquer
+
     $url_path = parse_url($url, PHP_URL_PATH);
     $current_url_path = parse_url($current_url, PHP_URL_PATH);
 
@@ -114,6 +117,17 @@ function obfuscate_link_custom($url, $text, $current_url) {
 
     $current_segment_count = count($current_url_segments);
     $url_segment_count = count($url_segments);
+
+    $last_url_segment = end($url_segments);
+
+    // Vérifier les exceptions
+    if (in_array($last_url_segment, $always_obfuscate)) {
+        return "<button onclick=\"location.href='{$url}'\">{$text}</button>";
+    }
+
+    if (in_array($last_url_segment, $never_obfuscate)) {
+        return "<a href=\"{$url}\">{$text}</a>";
+    }
 
     $obfuscate = false;
 
@@ -141,4 +155,5 @@ function obfuscate_link_custom($url, $text, $current_url) {
         return "<a href=\"{$url}\">{$text}</a>";
     }
 }
+
 ```
