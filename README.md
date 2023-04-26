@@ -117,6 +117,8 @@ function obfuscate_link($url, $text, $exceptions) {
 
     $obfuscate = false;
 
+    // Obfuscation des liens profonds au sein du cocon de l'URL actuelle
+
     if ($current_segment_count === 1) { // Page d'accueil
         if ($url_segment_count > 2) {
             $obfuscate = true;
@@ -135,7 +137,7 @@ function obfuscate_link($url, $text, $exceptions) {
         }
     }
 
-    // Cas supplémentaire
+    // Obfuscation des liens profonds en dehors du cocon de l'URL actuelle
     if ($url_segments[0] !== $current_url_segments[0] && $url_segment_count > 2) {
         $obfuscate = true;
     }
@@ -155,20 +157,4 @@ function obfuscate_link($url, $text, $exceptions) {
         return "<a href=\"{$url}\">{$text}</a>";
     }
 }
-
-function filter_wp_nav_menu_objects($items) {
-    $exceptions = [
-        'never_obfuscate' => ['/mentions-legales/', '/contact/'],
-        'always_obfuscate' => ['/page-obfusquee-toujours/']
-    ];
-
-    foreach ($items as &$item) {
-        $item->title = obfuscate_link($item->url, $item->title, $exceptions);
-    }
-
-    return $items;
-}
-
-add_filter('wp_nav_menu_objects', 'filter_wp_nav_menu_objects', 10, 2);
-
 ```
