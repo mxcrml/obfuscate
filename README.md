@@ -44,6 +44,7 @@ function obfuscate_link($url, $text, $current_url, $allowed_categories = []) {
 ```
 ## Filtre à insérer en dessous de la fonction obsfucate
 
+** Bien penser à éditer la variable *$allowed_categories = ["cat1", "cat2"];*, cat1 et cat2 étant deux exemples de pages mères / catégories.**
 ```
 function filter_wp_nav_menu_objects($sorted_menu_items) {
   $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
