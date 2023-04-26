@@ -99,3 +99,43 @@ function obfuscate_link($url, $text, $current_url) {
   }
 }
 ```
+
+## Version éditée après les commentaires de Fred
+```
+function obfuscate_link_custom($url, $text, $current_url) {
+    $url_path = parse_url($url, PHP_URL_PATH);
+    $current_url_path = parse_url($current_url, PHP_URL_PATH);
+
+    $url_segments = explode('/', trim($url_path, '/'));
+    $current_url_segments = explode('/', trim($current_url_path, '/'));
+
+    $current_segment_count = count($current_url_segments);
+    $url_segment_count = count($url_segments);
+
+    $obfuscate = false;
+
+    if ($current_segment_count === 1) { // Page d'accueil
+        if ($url_segment_count > 2) {
+            $obfuscate = true;
+        }
+    } elseif ($current_segment_count === 2) { // Pages mères
+        if ($url_segment_count > 3 && $url_segments[0] === $current_url_segments[0]) {
+            $obfuscate = true;
+        }
+    } elseif ($current_segment_count === 3) { // Pages filles
+        if ($url_segment_count > 4 && $url_segments[0] === $current_url_segments[0] && $url_segments[1] === $current_url_segments[1]) {
+            $obfuscate = true;
+        }
+    } elseif ($current_segment_count >= 4) { // Pages petites-filles et suivantes
+        if ($url_segment_count >= $current_segment_count + 1 && $url_segments[0] === $current_url_segments[0] && $url_segments[1] === $current_url_segments[1] && $url_segments[2] === $current_url_segments[2]) {
+            $obfuscate = true;
+        }
+    }
+
+    if ($obfuscate) {
+        return "<button onclick=\"location.href='{$url}'\">{$text}</button>";
+    } else {
+        return "<a href=\"{$url}\">{$text}</a>";
+    }
+}
+```
