@@ -105,29 +105,15 @@ function obfuscate_link($url, $text, $current_url) {
 Logique corrigée à partir du schema envoyé + intégration des exceptions
 
 ```
-function obfuscate_link_custom($url, $text, $current_url) {
-    $always_obfuscate = array('slug1', 'slug2'); // Liste des slugs à toujours obfusquer
-    $never_obfuscate = array('slug3', 'slug4'); // Liste des slugs à ne jamais obfusquer
-
+function obfuscate_link($url, $text, $exceptions) {
     $url_path = parse_url($url, PHP_URL_PATH);
-    $current_url_path = parse_url($current_url, PHP_URL_PATH);
+    $current_url_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
     $url_segments = explode('/', trim($url_path, '/'));
     $current_url_segments = explode('/', trim($current_url_path, '/'));
 
-    $current_segment_count = count($current_url_segments);
     $url_segment_count = count($url_segments);
-
-    $last_url_segment = end($url_segments);
-
-    // Vérifier les exceptions
-    if (in_array($last_url_segment, $always_obfuscate)) {
-        return "<button onclick=\"location.href='{$url}'\">{$text}</button>";
-    }
-
-    if (in_array($last_url_segment, $never_obfuscate)) {
-        return "<a href=\"{$url}\">{$text}</a>";
-    }
+    $current_segment_count = count($current_url_segments);
 
     $obfuscate = false;
 
@@ -149,11 +135,40 @@ function obfuscate_link_custom($url, $text, $current_url) {
         }
     }
 
+    // Cas supplémentaire
+    if ($url_segments[0] !== $current_url_segments[0] && $url_segment_count > 2) {
+        $obfuscate = true;
+    }
+
+    // Gérer les exceptions
+    if (in_array($url_path, $exceptions['never_obfuscate'])) {
+        $obfuscate = false;
+    } elseif (in_array($url_path, $exceptions['always_obfuscate'])) {
+        $obfuscate = true;
+    }
+
     if ($obfuscate) {
+        // Génère un bouton obfusqué
         return "<button onclick=\"location.href='{$url}'\">{$text}</button>";
     } else {
+        // Génère un lien standard
         return "<a href=\"{$url}\">{$text}</a>";
     }
 }
+
+function filter_wp_nav_menu_objects($items) {
+    $exceptions = [
+        'never_obfuscate' => ['/mentions-legales/', '/contact/'],
+        'always_obfuscate' => ['/page-obfusquee-toujours/']
+    ];
+
+    foreach ($items as &$item) {
+        $item->title = obfuscate_link($item->url, $item->title, $exceptions);
+    }
+
+    return $items;
+}
+
+add_filter('wp_nav_menu_objects', 'filter_wp_nav_menu_objects', 10, 2);
 
 ```
