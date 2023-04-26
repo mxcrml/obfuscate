@@ -1,4 +1,4 @@
-# Tutoriel pour obsfusquer les liens des mégas menus sur Wordpress
+# Tutoriel pour obsfusquer les liens des mégas menus sur Wordpress (Version BETA)
 
 Voici les codes générés avec GPT-4 en enseignant le méthode de Fred Bobet (pour les sites E-Commerce en 2021). Il faut bien sûr adapter le code en fonction du site. Pour faciliter ce processus, j'ai demandé à GPT-4 de nous faire un filtre afin qu'on puisse appliquer les techniques d'obsfuscations que sur certaines catégories lorsque cela était pertinent, il s'agit de la variable  *$allowed_categories*
 
