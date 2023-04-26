@@ -138,6 +138,7 @@ function obfuscate_link($url, $text, $exceptions) {
     }
 
     // Obfuscation des liens profonds en dehors du cocon de l'URL actuelle
+    
     if ($url_segments[0] !== $current_url_segments[0] && $url_segment_count > 2) {
         $obfuscate = true;
     }
