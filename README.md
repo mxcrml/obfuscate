@@ -100,7 +100,10 @@ function obfuscate_link($url, $text, $current_url) {
 }
 ```
 
-## Version éditée après les commentaires de Fred
+## Nouvelle version éditée après les commentaires de Fred 
+
+Logique corrigée à partir du schema envoyé + intégration des exceptions
+
 ```
 function obfuscate_link_custom($url, $text, $current_url) {
     $url_path = parse_url($url, PHP_URL_PATH);
