@@ -119,30 +119,34 @@ function obfuscate_link($url, $text, $exceptions) {
 
     // Obfuscation des liens profonds au sein du cocon de l'URL actuelle
 
-    if ($current_segment_count === 1) { // Page d'accueil
-        if ($url_segment_count > 2) {
+     if ($current_segment_count === 0) { // Page d'accueil
+        if ($url_segment_count > 1) {
             $obfuscate = true;
         }
-    } elseif ($current_segment_count === 2) { // Pages mères
-        if ($url_segment_count > 3 && $url_segments[0] === $current_url_segments[0]) {
+    } elseif ($current_segment_count === 1) { // Pages mères
+        if ($url_segment_count > 2 && $url_segments[0] === $current_url_segments[0]) {
             $obfuscate = true;
         }
-    } elseif ($current_segment_count === 3) { // Pages filles
-        if ($url_segment_count > 4 && $url_segments[0] === $current_url_segments[0] && $url_segments[1] === $current_url_segments[1]) {
+    } elseif ($current_segment_count === 2) { // Pages filles
+        if ($url_segment_count > 3 && $url_segments[0] === $current_url_segments[0] && $url_segments[1] === $current_url_segments[1]) {
             $obfuscate = true;
         }
-    } elseif ($current_segment_count >= 4) { // Pages petites-filles et suivantes
-        if ($url_segment_count >= $current_segment_count + 1 && $url_segments[0] === $current_url_segments[0] && $url_segments[1] === $current_url_segments[1] && $url_segments[2] === $current_url_segments[2]) {
+    } elseif ($current_segment_count >= 3) { // Pages petites-filles et suivantes
+        if ($url_segment_count > $current_segment_count + 1 && $url_segments[0] === $current_url_segments[0] && $url_segments[1] === $current_url_segments[1] && $url_segments[2] === $current_url_segments[2]) {
             $obfuscate = true;
         }
     }
 
-    // Obfuscation des liens profonds en dehors du cocon de l'URL actuelle
-    
-    if ($url_segments[0] !== $current_url_segments[0] && $url_segment_count > 2) {
+    // Obfuscation des liens profonds en dehors du cocon (ou sous-cocon) de l'URL actuelle
+    if ($url_segments[0] !== $current_url_segments[0] && $url_segment_count > 1) {
         $obfuscate = true;
     }
-
+    if ($current_segment_count > 0) {
+      if ($url_segments[1] !== $current_url_segments[1] && $url_segment_count > 1) {
+        $obfuscate = true;
+      } 
+    }
+    
     // Gérer les exceptions
     if (in_array($url_path, $exceptions['never_obfuscate'])) {
         $obfuscate = false;
@@ -159,3 +163,22 @@ function obfuscate_link($url, $text, $exceptions) {
     }
 }
 ```
+
+On ajoute un filtre comme précédemment afin d'appliquer la fonction sur les pages désirées.
+
+```
+function filter_wp_nav_menu_objects($items) {
+    $exceptions = [
+        'never_obfuscate' => ['/mentions-legales/', '/contact/'],
+        'always_obfuscate' => ['/page-a-obfusquer/']
+    ];
+
+    foreach ($items as &$item) {
+        $item->title = obfuscate_link($item->url, $item->title, $exceptions);
+    }
+
+    return $items;
+}
+```
+
+Sûrement des ajustements à faire comme préciser précédemment, mais la logique de la fonction est a priori améliorée dans cette version.
