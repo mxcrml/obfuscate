@@ -67,3 +67,35 @@ La fonction filter_wp_nav_menu_objects utilisée dans cet exemple est conçue po
 Les méga menus sont généralement créés à l'aide de plugins supplémentaires ou de thèmes personnalisés qui modifient le comportement par défaut de wp_nav_menu(). Pour que la fonction filter_wp_nav_menu_objects fonctionne avec les méga menus, vous devrez peut-être adapter la fonction en fonction du plugin ou du thème que vous utilisez pour créer les méga menus.
 
 Chaque plugin ou thème de méga menu peut fonctionner différemment, il est donc difficile de fournir une solution universelle pour tous les méga menus. Vous devrez examiner la documentation ou le code du plugin/thème que vous utilisez et adapter la fonction filter_wp_nav_menu_objects en conséquence.
+
+## Généralisation de la fonction obfuscate
+
+Pour créer des règles d'obfuscation sur mesure en fonction des pages, vous pouvez personnaliser la fonction obfuscate_link en ajoutant des conditions spécifiques pour les pages et les liens que vous souhaitez obfusquer. 
+
+Voici une version modifiée de la fonction obfuscate_link qui obfusque les liens vers certaines pages (par exemple, contact, mentions légales) sur toutes les pages, sauf la page d'accueil.
+
+```
+function obfuscate_link($url, $text, $current_url) {
+  $url_path = parse_url($url, PHP_URL_PATH);
+  $current_url_path = parse_url($current_url, PHP_URL_PATH);
+
+  $url_segments = explode('/', trim($url_path, '/'));
+  $current_url_segments = explode('/', trim($current_url_path, '/'));
+
+  // Ajoutez les slugs des pages que vous souhaitez obfusquer dans ce tableau
+  $pages_to_obfuscate = ['contact', 'mentions-legales'];
+
+  // Vérifie si l'URL actuelle n'est pas la page d'accueil
+  $not_homepage = !empty($current_url_segments[0]);
+
+  // Vérifie si le lien correspond à l'une des pages à obfusquer
+  $is_obfuscate_page = in_array($url_segments[count($url_segments) - 1], $pages_to_obfuscate);
+
+  // Obfusque le lien si les conditions sont remplies
+  if ($not_homepage && $is_obfuscate_page) {
+    return "<button onclick=\"location.href='{$url}'\">{$text}</button>";
+  } else {
+    return "<a href=\"{$url}\">{$text}</a>";
+  }
+}
+```
