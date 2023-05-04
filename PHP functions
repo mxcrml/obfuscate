@@ -1,0 +1,50 @@
+function obfuscate_links($content, $slugs = [], $is_homepage = false) {
+    if ($is_homepage) {
+        return $content;
+    }
+
+    $pattern = '/<a\s+(.*?)href=[\'"]([^\'"]+)[\'"](.*?)>(.*?)<\/a>/i';
+
+    $content = preg_replace_callback($pattern, function($matches) use ($slugs) {
+        $attributes = $matches[1] . $matches[3];
+        $url = $matches[2];
+        $link_text = $matches[4];
+
+        // Vérifie si le lien correspond à l'un des slugs spécifiés
+        $should_obfuscate = false;
+        foreach ($slugs as $slug) {
+            if (strpos($url, $slug) !== false) {
+                $should_obfuscate = true;
+                break;
+            }
+        }
+
+        if ($should_obfuscate) {
+            return "<button class='secondary-link' {$attributes} onclick=\"location.href='{$url}'\">{$link_text}</button>";
+        } else {
+            return $matches[0];
+        }
+    }, $content);
+
+    return $content;
+}
+
+function apply_obfuscate_links_to_body() {
+    ob_start('apply_obfuscate_links_callback');
+}
+add_action('template_redirect', 'apply_obfuscate_links_to_body');
+
+function apply_obfuscate_links_callback($buffer) {
+    $slugs = [
+        '/contact'
+        // Ajoutez d'autres slugs ici
+    ];
+
+    // Déterminez si la page actuelle est la page d'accueil
+    $is_homepage = is_front_page();
+
+    // Appliquez la fonction obfuscate_links au contenu du buffer
+    $obfuscated_content = obfuscate_links($buffer, $slugs, $is_homepage);
+
+    return $obfuscated_content;
+}
